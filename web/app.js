@@ -200,52 +200,42 @@ function handleBulkAdd() {
   }
 }
 
-function handleRuleSubmit(event) {
-  event.preventDefault();
-  const errorElem = document.getElementById("rule-error");
-  errorElem.textContent = "";
-
-  const from = document.getElementById("rule-input").value.trim();
-  const to = document.getElementById("rule-output").value.trim();
-
-  if (!from) {
-    errorElem.textContent = "Preencha o campo de entrada esperada.";
-    return;
+function chunkRecords(records, size) {
+  const result = [];
+  for (let i = 0; i < records.length; i += size) {
+    result.push(records.slice(i, i + size));
   }
-
-  state.rules.push({ from, to });
-  event.target.reset();
-  renderRules();
+  return result;
 }
 
-function exportFile(kind) {
+function exportXlsx() {
   if (!state.records.length) return alert("Nenhum registro para exportar.");
 
-  const lines = state.records.map((r) => {
-    const iso = adjustedIso(r.timestamp);
-    return `${iso};${r.company};${r.percent}`;
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.aoa_to_sheet([]);
+  const header = ["data_hora_utc", "empresa", "excedido_%"];
+  const chunkSize = 256;
+  const tableWidth = header.length + 1; // 1 coluna de espaçamento
+
+  const chunks = chunkRecords(state.records, chunkSize);
+
+  chunks.forEach((chunk, index) => {
+    const colOffset = index * tableWidth;
+
+    XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: { r: 0, c: colOffset } });
+
+    const rows = chunk.map((record) => [adjustedIso(record.timestamp), record.company, record.percent]);
+    XLSX.utils.sheet_add_aoa(worksheet, rows, { origin: { r: 1, c: colOffset } });
   });
 
-  const header = "data_hora_utc;empresa;excedido_%";
-  const payload = [header, ...lines].join(kind === "csv" ? "\n" : "\r\n");
-  const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `despacho.${kind}`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Despacho");
+  XLSX.writeFile(workbook, "despacho.xlsx");
 }
 
 function main() {
   document.getElementById("record-form").addEventListener("submit", handleFormSubmit);
   document.getElementById("bulk-add").addEventListener("click", handleBulkAdd);
-  document.getElementById("rule-form").addEventListener("submit", handleRuleSubmit);
-  document.getElementById("export-csv").addEventListener("click", () => exportFile("csv"));
-  document.getElementById("export-txt").addEventListener("click", () => exportFile("txt"));
-  renderRules();
+  document.getElementById("export-xlsx").addEventListener("click", exportXlsx);
 }
 
 main();
