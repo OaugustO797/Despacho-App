@@ -38,4 +38,3 @@ Abra `web/index.html` em um navegador ou sirva o diretório com `python -m http.
 - Cadastre registros individualmente ou cole várias linhas seguindo o padrão original.
 - A data do turno é obrigatória; a lógica detecta a troca de dia quando o horário volta após 23:59.
 - Os botões CSV/TXT exportam com horário +3h e sufixo `Z`, adequados para PowerAutomate/SharePoint.
-- Horários podem ser digitados/colados como `00:00`, `00h00` ou `00:00h`.
