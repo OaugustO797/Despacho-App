@@ -1,4 +1,5 @@
-const LOG_PATTERN = /^(?<clock>\d{2}:\d{2})\s*[-–]\s*Abertura da tela de Despacho\s*[-–]\s*(?<company>[A-Z]{3})\s*[-–]\s*EXCEDIDO EM:\s*(?<percent>\d+)%/i;
+const LOG_PATTERN =
+  /^(?<clock>\d{2}(?::|h)\d{2}h?)\s*[-–]\s*Abertura da tela de Despacho\s*[-–]\s*(?<company>[A-Z]{3})\s*[-–]\s*EXCEDIDO EM:\s*(?<percent>\d+)%/i;
 
 const state = {
   records: [],
@@ -25,13 +26,30 @@ function adjustedIso(date) {
   return iso.slice(0, 16) + "Z";
 }
 
+function normalizeClock(clock) {
+  let normalized = clock.trim().toLowerCase();
+
+  if (normalized.endsWith("h")) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  normalized = normalized.replace(/h/g, ":");
+
+  if (!/^\d{2}:\d{2}$/.test(normalized)) {
+    throw new Error(`Horário inválido: "${clock}"`);
+  }
+
+  return normalized;
+}
+
 function parseLine(line, shiftDate, previousClock) {
   const match = line.match(LOG_PATTERN);
   if (!match) {
     throw new Error(`Linha não corresponde ao padrão esperado: "${line}"`);
   }
 
-  const [hours, minutes] = match.groups.clock.split(":").map(Number);
+  const normalizedClock = normalizeClock(match.groups.clock);
+  const [hours, minutes] = normalizedClock.split(":").map(Number);
   const company = match.groups.company.toUpperCase();
   const percent = Number(match.groups.percent);
 

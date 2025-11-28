@@ -21,9 +21,11 @@ from datetime import date, datetime, timedelta, time
 from pathlib import Path
 from typing import Iterable, List
 
+CLOCK_PATTERN = r"\d{2}(?::|h)\d{2}h?"
+
 LOG_PATTERN = re.compile(
-    r"^(?P<clock>\d{2}(?::|h)\d{2}h?)\s*[-–]\s*Abertura da tela de Despacho\s*[-–]\s*"
-    r"(?P<company>[A-Z]{3})\s*[-–]\s*EXCEDIDO EM:\s*(?P<percent>\d+)%\s*$"
+    rf"^(?P<clock>{CLOCK_PATTERN})\s*[-–]\s*Abertura da tela de Despacho\s*[-–]\s*"
+    rf"(?P<company>[A-Z]{{3}})\s*[-–]\s*EXCEDIDO EM:\s*(?P<percent>\d+)\s*%\s*$"
 )
 
 
