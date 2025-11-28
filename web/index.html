@@ -9,6 +9,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     />
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   </head>
   <body>
     <div class="app-shell">
@@ -92,8 +93,7 @@
             <div class="actions">
               <button type="submit" class="primary-btn">+ Adicionar Registro</button>
               <div class="spacer"></div>
-              <button type="button" class="ghost-btn" id="export-csv">⬇️ CSV</button>
-              <button type="button" class="ghost-btn" id="export-txt">⬇️ TXT</button>
+              <button type="button" class="ghost-btn" id="export-xlsx">⬇️ XLSX</button>
             </div>
           </form>
           <div class="bulk">
@@ -109,7 +109,7 @@
           </div>
           <p class="helper">
             Dica: mudanças de dia são detectadas quando o horário volta ou cruza a
-            meia-noite; o Excel será exportado com horário +3h e sufixo "Z".
+            meia-noite; o XLSX é exportado com horário +3h e sufixo "Z".
           </p>
           <p class="error" id="error"></p>
         </article>
@@ -120,8 +120,8 @@
               <h2>Registros de Despacho</h2>
               <p id="list-subtitle">Nenhum registro adicionado</p>
             </div>
-            <div class="chip">CSV</div>
-            <div class="chip">TXT</div>
+            <div class="chip">XLSX</div>
+            <div class="chip">UTC +3h</div>
           </header>
           <div id="record-list" class="record-list"></div>
         </article>
