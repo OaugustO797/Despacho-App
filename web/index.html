@@ -96,6 +96,40 @@
               <button type="button" class="ghost-btn" id="export-xlsx">⬇️ XLSX</button>
             </div>
           </form>
+          <div class="rules">
+            <header class="rules-header">
+              <div>
+                <h3>Regras de transformação</h3>
+                <p>Padronize entradas antes da validação (ex.: 18h30 → 18:30).</p>
+              </div>
+            </header>
+            <form class="rule-form" id="rule-form">
+              <div class="field-grid">
+                <label class="field">
+                  <span>Entrada esperada</span>
+                  <input
+                    type="text"
+                    id="rule-input"
+                    placeholder="18h30"
+                    aria-label="Entrada esperada"
+                  />
+                </label>
+                <label class="field">
+                  <span>Formato desejado</span>
+                  <input
+                    type="text"
+                    id="rule-output"
+                    placeholder="18:30"
+                    aria-label="Formato desejado"
+                  />
+                </label>
+              </div>
+              <button type="submit" class="primary-btn">Salvar regra</button>
+            </form>
+            <div id="rule-empty" class="helper"></div>
+            <div id="rule-list" class="rule-list"></div>
+            <p class="error" id="rule-error"></p>
+          </div>
           <div class="bulk">
             <label class="field">
               <span>Colar vários registros</span>
