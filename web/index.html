@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOC Dashboard - Despacho</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="logo-group">
+          <div class="logo-mark">N</div>
+          <div>
+            <p class="subtitle">Centro de Operações</p>
+            <h1>NOC Dashboard</h1>
+            <p class="subtitle">Controle de Despacho</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" aria-label="Configurações">
+            <span>⚙️</span>
+          </button>
+          <button class="icon-btn" aria-label="Alternar tema">
+            <span>🌗</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-label">Total de Registros</div>
+          <div class="stat-value" id="total-count">0</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Média de Excedente</div>
+          <div class="stat-value highlight" id="average">0%</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Status do Sistema</div>
+          <div class="status-row">
+            <span class="status-dot"></span>
+            <span id="system-status">Operacional</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="layout">
+        <article class="card form-card">
+          <header class="card-header">
+            <div>
+              <h2>Novo Registro</h2>
+              <p>Insira a data do turno e cole várias linhas de uma vez.</p>
+            </div>
+          </header>
+          <form class="form" id="record-form">
+            <label class="field">
+              <span>Data do turno</span>
+              <input type="date" id="shift-date" required />
+            </label>
+            <div class="field-grid">
+              <label class="field">
+                <span>Horário</span>
+                <input type="time" id="time" required />
+              </label>
+              <label class="field">
+                <span>Empresa</span>
+                <input
+                  type="text"
+                  id="company"
+                  maxlength="3"
+                  placeholder="EX: EMP"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span>Tempo Excedido (%)</span>
+                <input
+                  type="number"
+                  id="percent"
+                  min="0"
+                  max="999"
+                  placeholder="35"
+                  required
+                />
+              </label>
+            </div>
+            <div class="actions">
+              <button type="submit" class="primary-btn">+ Adicionar Registro</button>
+              <div class="spacer"></div>
+              <button type="button" class="ghost-btn" id="export-csv">⬇️ CSV</button>
+              <button type="button" class="ghost-btn" id="export-txt">⬇️ TXT</button>
+            </div>
+          </form>
+          <div class="bulk">
+            <label class="field">
+              <span>Colar vários registros</span>
+              <textarea
+                id="bulk-input"
+                rows="6"
+                placeholder="18:23 - Abertura da tela de Despacho - EMP - EXCEDIDO EM: 00%"
+              ></textarea>
+            </label>
+            <button class="primary-btn" id="bulk-add">Adicionar em Massa</button>
+          </div>
+          <p class="helper">
+            Dica: mudanças de dia são detectadas quando o horário volta ou cruza a
+            meia-noite; o Excel será exportado com horário +3h e sufixo "Z".
+          </p>
+          <p class="error" id="error"></p>
+        </article>
+
+        <article class="card list-card">
+          <header class="card-header">
+            <div>
+              <h2>Registros de Despacho</h2>
+              <p id="list-subtitle">Nenhum registro adicionado</p>
+            </div>
+            <div class="chip">CSV</div>
+            <div class="chip">TXT</div>
+          </header>
+          <div id="record-list" class="record-list"></div>
+        </article>
+      </section>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
