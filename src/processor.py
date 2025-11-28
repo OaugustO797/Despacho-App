@@ -22,8 +22,8 @@ from pathlib import Path
 from typing import Iterable, List
 
 LOG_PATTERN = re.compile(
-    r"^(?P<clock>\d{2}:\d{2})\s*-\s*Abertura da tela de Despacho\s*-\s*"
-    r"(?P<company>[A-Z]{3})\s*-\s*EXCEDIDO EM:\s*(?P<percent>\d+)%\s*$"
+    r"^(?P<clock>\d{2}(?::|h)\d{2}h?)\s*[-–]\s*Abertura da tela de Despacho\s*[-–]\s*"
+    r"(?P<company>[A-Z]{3})\s*[-–]\s*EXCEDIDO EM:\s*(?P<percent>\d+)%\s*$"
 )
 
 
@@ -49,6 +49,20 @@ class DispatchRecord:
 
 class ParseError(ValueError):
     """Raised when a log line cannot be parsed."""
+
+
+def _normalize_clock(clock: str) -> str:
+    """Normalize times like ``00h00`` or ``00:00h`` to ``HH:MM``."""
+
+    normalized = clock.strip().lower()
+    if normalized.endswith("h"):
+        normalized = normalized[:-1]
+    normalized = normalized.replace("h", ":")
+
+    if not re.fullmatch(r"\d{2}:\d{2}", normalized):
+        raise ParseError(f"Horário inválido: {clock!r}")
+
+    return normalized
 
 
 def parse_records(lines: Iterable[str], shift_date: date) -> List[DispatchRecord]:
@@ -82,7 +96,8 @@ def parse_records(lines: Iterable[str], shift_date: date) -> List[DispatchRecord
         company = match.group("company")
         percent = int(match.group("percent"))
 
-        clock_time = datetime.strptime(clock_str, "%H:%M").time()
+        normalized_clock = _normalize_clock(clock_str)
+        clock_time = datetime.strptime(normalized_clock, "%H:%M").time()
         if previous_clock and clock_time < previous_clock:
             current_date += timedelta(days=1)
 
