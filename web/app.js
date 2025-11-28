@@ -3,7 +3,12 @@ const LOG_PATTERN = /^(?<clock>\d{2}:\d{2})\s*[-–]\s*Abertura da tela de Despa
 const state = {
   records: [],
   lastClockMinutes: null,
+  rules: [],
 };
+
+function applyRules(text) {
+  return state.rules.reduce((acc, rule) => acc.split(rule.from).join(rule.to), text);
+}
 
 function formatClock(date) {
   return date.toLocaleTimeString("pt-BR", {
@@ -98,6 +103,40 @@ function render() {
   });
 }
 
+function renderRules() {
+  const listElem = document.getElementById("rule-list");
+  const emptyElem = document.getElementById("rule-empty");
+  listElem.innerHTML = "";
+
+  if (!state.rules.length) {
+    emptyElem.textContent = "Nenhuma regra cadastrada";
+    return;
+  }
+
+  emptyElem.textContent = "";
+
+  state.rules.forEach((rule, index) => {
+    const row = document.createElement("div");
+    row.className = "rule-row";
+
+    const text = document.createElement("div");
+    text.className = "rule-text";
+    text.textContent = `"${rule.from}" → "${rule.to}"`;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "icon-btn danger";
+    removeBtn.textContent = "✕";
+    removeBtn.addEventListener("click", () => {
+      state.rules.splice(index, 1);
+      renderRules();
+    });
+
+    row.append(text, removeBtn);
+    listElem.appendChild(row);
+  });
+}
+
 function ensureShiftDate() {
   const value = document.getElementById("shift-date").value;
   if (!value) {
@@ -122,7 +161,8 @@ function handleFormSubmit(event) {
     }
 
     const syntheticLine = `${time} - Abertura da tela de Despacho - ${company} - EXCEDIDO EM: ${percent}%`;
-    const record = parseLine(syntheticLine, shiftDate, state.lastClockMinutes ?? null);
+    const transformedLine = applyRules(syntheticLine);
+    const record = parseLine(transformedLine, shiftDate, state.lastClockMinutes ?? null);
     addRecord(record);
 
     event.target.reset();
@@ -147,7 +187,9 @@ function handleBulkAdd() {
     let lastClock = state.lastClockMinutes;
 
     lines.forEach((line) => {
-      const record = parseLine(line.trim(), shiftDate, lastClock ?? null);
+      const normalizedLine = applyRules(line.trim());
+      if (!normalizedLine) return;
+      const record = parseLine(normalizedLine, shiftDate, lastClock ?? null);
       addRecord(record);
       lastClock = record.currentClockMinutes;
     });
@@ -156,6 +198,24 @@ function handleBulkAdd() {
   } catch (err) {
     errorElem.textContent = err.message;
   }
+}
+
+function handleRuleSubmit(event) {
+  event.preventDefault();
+  const errorElem = document.getElementById("rule-error");
+  errorElem.textContent = "";
+
+  const from = document.getElementById("rule-input").value.trim();
+  const to = document.getElementById("rule-output").value.trim();
+
+  if (!from) {
+    errorElem.textContent = "Preencha o campo de entrada esperada.";
+    return;
+  }
+
+  state.rules.push({ from, to });
+  event.target.reset();
+  renderRules();
 }
 
 function exportFile(kind) {
@@ -182,8 +242,10 @@ function exportFile(kind) {
 function main() {
   document.getElementById("record-form").addEventListener("submit", handleFormSubmit);
   document.getElementById("bulk-add").addEventListener("click", handleBulkAdd);
+  document.getElementById("rule-form").addEventListener("submit", handleRuleSubmit);
   document.getElementById("export-csv").addEventListener("click", () => exportFile("csv"));
   document.getElementById("export-txt").addEventListener("click", () => exportFile("txt"));
+  renderRules();
 }
 
 main();
