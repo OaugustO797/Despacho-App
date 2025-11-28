@@ -15,6 +15,7 @@ pip install -r requirements.txt
    ```
    <hh:mm> - Abertura da tela de Despacho - <EMP> - EXCEDIDO EM: <xx>%
    ```
+   - Horários são aceitos como `00:00`, `00h00` ou `00:00h`.
 3. Execute o utilitário apontando a data e opcionalmente um arquivo de saída:
 
 ```bash
